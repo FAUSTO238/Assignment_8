@@ -1,6 +1,7 @@
 import json
 import re
 import random
+import sys
 
 # Predefined subnets
 IPv4_SUBNET = "192.168.1.0/24"
@@ -36,10 +37,11 @@ def assign_ip(mac, dhcp_version):
             "lease_time": lease_db[mac]['lease_time']
         })
     
+    # Ensure DHCP version is valid before proceeding
     if dhcp_version == "DHCPv4":
-        ip = generate_ipv4()
+        ip = generate_ipv4()  # Assign an IPv4 address
     elif dhcp_version == "DHCPv6":
-        ip = generate_ipv6(mac)
+        ip = generate_ipv6(mac)  # Assign an IPv6 address
     else:
         return json.dumps({"error": "Invalid DHCP version"})
     
@@ -52,10 +54,15 @@ def assign_ip(mac, dhcp_version):
         "lease_time": lease_time
     })
 
-# Input simulation (as an example, in real case, data would come from form or URL parameters)
-mac_address = "00:1A:2B:3C:4D:5E"
-dhcp_version = "DHCPv6"  # Change to "DHCPv4" to test IPv4
+# Collect input from the command line arguments (passed from process.php)
+if len(sys.argv) < 3:
+    print(json.dumps({"error": "Insufficient arguments provided"}))
+    sys.exit(1)
 
-# Call the function
+mac_address = sys.argv[1]  # MAC address from the form input
+dhcp_version = sys.argv[2]  # DHCP version from the form input
+
+# Call the function and print the result
 result = assign_ip(mac_address, dhcp_version)
 print(result)
+
